@@ -69,7 +69,8 @@ public class LinkedinIndividualCreator extends IndividualCreator {
 
 		Location location = inPerson.getPerson().getLocation();
 		if (location != null) {
-			Resource locationRsc = createLocationResource(location.getName());
+			Resource locationRsc = createLocationResource(UUID.randomUUID()
+					.toString(), inPerson.getPerson().getLocation().getName());
 			createProperty(linkedinIndividual,
 					CommonOntologyVocabulary.LOCATION_URI, locationRsc);
 			getLogger().info("location property has been added");

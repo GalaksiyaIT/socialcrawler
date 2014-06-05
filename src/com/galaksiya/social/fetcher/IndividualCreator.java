@@ -12,8 +12,11 @@ import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.sparql.vocabulary.FOAF;
+import com.restfb.types.NamedFacebookType;
 
 public abstract class IndividualCreator {
+
+	private static final String PLACE_PATTERN = "place/";
 
 	private String baseURI;
 
@@ -46,17 +49,19 @@ public abstract class IndividualCreator {
 				accountIndv);
 	}
 
-	public void createHometownPrp(Resource fbUserIndv, String hometownName) {
+	public void createHometownPrp(Resource fbUserIndv, String hometownId,
+			String locationName) {
 		// create hometown resource
-		Resource hometownRsc = createHometownResource(hometownName);
+		Resource hometownRsc = createHometownResource(hometownId, locationName);
 		// create hometown property of facebook user individual
 		createProperty(fbUserIndv, CommonOntologyVocabulary.HOMETOWN_URI,
 				hometownRsc);
 	}
 
-	public void createLocationProperty(Resource userIndv, String locationName) {
+	public void createLocationProperty(Resource userIndv, String locationId,
+			String locationName) {
 		// create location resource
-		Resource locationRsc = createLocationResource(locationName);
+		Resource locationRsc = createLocationResource(locationId, locationName);
 		// create location property of facebook user individual
 		createProperty(userIndv, CommonOntologyVocabulary.LOCATION_URI,
 				locationRsc);
@@ -65,22 +70,37 @@ public abstract class IndividualCreator {
 	/**
 	 * create location resource using given location object.
 	 * 
+	 * @param locationId
 	 * @param locationName
-	 * 
 	 * @return
 	 */
-	public Resource createLocationResource(String locationName) {
+	public Resource createLocationResource(String locationId,
+			String locationName) {
 		Resource locationRsc = null;
 		// create location resource
 		if (isTextNotEmpty(locationName)) {
 			locationRsc = getModel().createResource(
-					getBaseURI() + "LOC" + UUID.randomUUID(),
+					getBaseURI() + PLACE_PATTERN + locationId,
 					CommonOntologyVocabulary.PLACE_RSC);
 			// create name property of hometown
 			createProperty(locationRsc, CommonOntologyVocabulary.FOAF_NAME_URI,
 					locationName);
 		}
 		return locationRsc;
+	}
+
+	private Resource createHometownResource(String hometownId,
+			String hometownName) {
+		// create hometown resource
+		Resource hometownRsc = null;
+		if (isTextNotEmpty(hometownName)) {
+			hometownRsc = getModel().createResource(
+					getBaseURI() + PLACE_PATTERN + hometownId,
+					CommonOntologyVocabulary.PLACE_RSC);
+			// create name property of hometown
+			createProperty(hometownRsc, FOAF.name.getURI(), hometownName);
+		}
+		return hometownRsc;
 	}
 
 	/**
@@ -234,18 +254,21 @@ public abstract class IndividualCreator {
 		return accountIndv;
 	}
 
-	private Resource createHometownResource(String hometownName) {
-		// create hometown resource
-
-		Resource hometownRsc = null;
-		if (isTextNotEmpty(hometownName)) {
-			hometownRsc = getModel().createResource(
-					getBaseURI() + "HT" + UUID.randomUUID(),
-					CommonOntologyVocabulary.PLACE_RSC);
-			// create name property of hometown
-			createProperty(hometownRsc, FOAF.name.getURI(), hometownName);
+	/**
+	 * this method tries to get id from given {@link NamedFacebookType}
+	 * otherwise it generates an id using {@link UUID}
+	 * 
+	 * @param idValue
+	 *            {@link NamedFacebookType} instance that the id will be get
+	 *            from.
+	 * @return generated id
+	 */
+	protected String generateId(String idValue) {
+		if (isTextNotEmpty(idValue)) {
+			return idValue;
+		} else {
+			return UUID.randomUUID().toString();
 		}
-		return hometownRsc;
 	}
 
 	/**

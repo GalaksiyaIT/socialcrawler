@@ -1,6 +1,8 @@
 package com.galaksiya.social.fetcher;
 
 import java.io.FileOutputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -22,6 +24,7 @@ import com.galaksiya.social.entity.Music;
 import com.galaksiya.social.linker.BankPersonLinker;
 import com.galaksiya.social.ontology.vocabulary.CommonOntologyVocabulary;
 import com.galaksiya.social.ontology.vocabulary.FacebookOntologyVocabulary;
+import com.galaksiya.social.ontology.vocabulary.FoursquareOntologyVocabulary;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.ResultSet;
@@ -186,12 +189,16 @@ public class FacebookIndividualCreator extends IndividualCreator {
 						CommonOntologyVocabulary.FOAF_PERSON_RSC_URI));
 
 		// Create singular properties...
-
-		createHometownPrp(fbUserIndv, facebookUser.getUser().getHometownName());
+		if (facebookUser.getUser().getHometown() != null) {
+			createHometownPrp(fbUserIndv, generateId(facebookUser.getUser()
+					.getHometown().getId()), facebookUser.getUser()
+					.getHometown().getName());
+		}
 
 		if (facebookUser.getUser().getLocation() != null) {
-			createLocationProperty(fbUserIndv, facebookUser.getUser()
-					.getLocation().getName());
+			createLocationProperty(fbUserIndv, generateId(facebookUser
+					.getUser().getLocation().getId()), facebookUser.getUser()
+					.getHometown().getName());
 		}
 
 		createProperty(fbUserIndv, FacebookOntologyVocabulary.RELIGION_URI,
@@ -270,7 +277,7 @@ public class FacebookIndividualCreator extends IndividualCreator {
 	private void createEducationProperty(Resource fbOntIndv, Education education) {
 		if (education != null) {
 			Resource eduIndv = getModel().createResource(
-					getBaseURI() + "edu" + UUID.randomUUID(),
+					getBaseURI() + "education/" + UUID.randomUUID(),
 					getModel().createResource(
 							CommonOntologyVocabulary.EDUCATION_URI));
 			createConcentrationProperties(education, eduIndv);
@@ -297,7 +304,7 @@ public class FacebookIndividualCreator extends IndividualCreator {
 		NamedFacebookType school = education.getSchool();
 		if (school != null) {
 			Resource schoolIndv = getModel().createResource(
-					getBaseURI() + "school" + school.getId(),
+					getBaseURI() + "school/" + school.getId(),
 					getModel().createResource(
 							CommonOntologyVocabulary.EDUCATIONAL_ORG));
 			createProperty(schoolIndv, CommonOntologyVocabulary.FOAF_NAME_URI,
@@ -325,7 +332,7 @@ public class FacebookIndividualCreator extends IndividualCreator {
 	private Resource createEventIndividual(FacebookEvent event) {
 		Resource eventIndv = getModel()
 				.createResource(
-						getBaseURI() + "event" + event.getId(),
+						getBaseURI() + "event/" + event.getId(),
 						ResourceFactory
 								.createResource(FacebookOntologyVocabulary.EVENT_RSC_URI));
 		// creating name property of event individual
@@ -358,24 +365,45 @@ public class FacebookIndividualCreator extends IndividualCreator {
 				// getting venue of event
 				FacebookVenue eventVenue = event.getVenue();
 				if (eventVenue != null) {
-
-					// create city resource for venue
-					Resource cityRsc = createCityResource(eventVenue.getCity());
-
-					// create country resource for venue
-					Resource countryRsc = createCountryResource(eventVenue
-							.getCountry());
-
-					// creating location individual
-					Resource locationIndv = createLocationIndividualOfEvent(
-							eventVenue, cityRsc, countryRsc);
-					// adding location property to event individual
-					createProperty(eventIndv,
-							CommonOntologyVocabulary.LOCATION_URI, locationIndv);
+					// add venue property to the given event
+					createVenueProperty(eventIndv, eventVenue);
 				}
 			}
 		}
 
+	}
+
+	private void createVenueProperty(Resource eventIndv,
+			FacebookVenue eventVenue) {
+
+		// create venue individual for event
+		Resource venueIndv = createVenueIndividual(eventVenue);
+
+		// adding venue property to event individual
+		createProperty(eventIndv, FoursquareOntologyVocabulary.VENUE_PRP_URI,
+				venueIndv);
+	}
+
+	private Resource createVenueIndividual(FacebookVenue eventVenue) {
+		// create venue individual
+		Resource venueIndv = getModel().createResource(
+				getBaseURI() + "venue/" + generateId(eventVenue.getId()),
+				getModel().createResource(
+						FoursquareOntologyVocabulary.VENUE_URI));
+
+		// create city resource for venue
+		Resource cityRsc = createCityResource(eventVenue.getCity());
+
+		// create country resource for venue
+		Resource countryRsc = createCountryResource(eventVenue.getCountry());
+
+		// creating location individual
+		Resource locationIndv = createLocationIndividualOfEvent(eventVenue,
+				cityRsc, countryRsc);
+		// adding location property to event individual
+		createProperty(venueIndv, CommonOntologyVocabulary.LOCATION_URI,
+				locationIndv);
+		return venueIndv;
 	}
 
 	private void createFamilyBondProperty(FamilyBond familyBond, Resource fbIndv) {
@@ -403,7 +431,7 @@ public class FacebookIndividualCreator extends IndividualCreator {
 		// create favourite team individual
 		Resource favouriteTeamIndv = getModel()
 				.createResource(
-						getBaseURI() + "Team" + favouriteTeam.getId(),
+						getBaseURI() + "team/" + favouriteTeam.getId(),
 						getModel().getResource(
 								FacebookOntologyVocabulary.TEAM_RSC_URI));
 
@@ -662,7 +690,7 @@ public class FacebookIndividualCreator extends IndividualCreator {
 		Resource workIndv = null;
 		if (work != null) {
 			workIndv = getModel().createResource(
-					getBaseURI() + "wh" + UUID.randomUUID(),
+					getBaseURI() + "workhistory/" + UUID.randomUUID(),
 					getModel().getResource(
 							CommonOntologyVocabulary.WORK_HISTORY_URI));
 			String description = work.getDescription();

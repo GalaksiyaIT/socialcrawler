@@ -79,7 +79,8 @@ public class FoursquareIndividualCreator extends IndividualCreator {
 
 		createFollowingCountProperty(user, fsIndv);
 
-		createHometownPrp(fsIndv, foursquareUser.getUser().getHomeCity());
+		createHometownPrp(fsIndv, UUID.randomUUID().toString(), foursquareUser
+				.getUser().getHomeCity());
 
 		createRequestCountProperty(user, fsIndv);
 
