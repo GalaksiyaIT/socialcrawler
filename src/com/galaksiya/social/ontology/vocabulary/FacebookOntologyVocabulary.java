@@ -27,6 +27,12 @@ public class FacebookOntologyVocabulary {
 			+ "has_photoAlbum";
 	public static final String JOINS_PRP_URI = FACEBOOK_SCHEMA_BASE_URI
 			+ "joins";
+
+	public static final String INTERESTED_IN_PRP_URI = FACEBOOK_SCHEMA_BASE_URI
+			+ "interestedIn";
+	public static final String INTEREST_RSC_URI = FACEBOOK_SCHEMA_BASE_URI
+			+ "Interest";
+
 	public static final String HAS_VIDEO_URI = FACEBOOK_SCHEMA_BASE_URI
 			+ "has_video";
 	public static final String HAS_POST_URI = FACEBOOK_SCHEMA_BASE_URI

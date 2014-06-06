@@ -13,12 +13,12 @@ import org.junit.Test;
 
 import com.galaksiya.social.entity.FacebookUser;
 import com.galaksiya.social.entity.Group;
+import com.galaksiya.social.entity.Interest;
 import com.galaksiya.social.entity.Like;
-import com.galaksiya.social.entity.Movie;
-import com.galaksiya.social.entity.Music;
 import com.galaksiya.social.vocabulary.FacebookTestVocabulary;
 import com.restfb.DefaultFacebookClient;
 import com.restfb.FacebookClient;
+import com.restfb.types.NamedFacebookType;
 import com.restfb.types.User;
 import com.restfb.types.User.Education;
 import com.restfb.types.User.Work;
@@ -103,6 +103,8 @@ public class FacebookDataFetcherTest {
 
 		assertNull(facebookUser.getGroups());
 
+		assertNull(facebookUser.getInterests());
+
 		// complete...
 		fetcher.complete();
 
@@ -115,10 +117,21 @@ public class FacebookDataFetcherTest {
 
 		assertWorks(facebookUser.getWorks());
 
+		assertInterests(facebookUser.getInterests());
+
 		checkIfListIsEmpty(facebookUser.getEvents());
 
 		assertUserGroups(facebookUser.getGroups());
 
+	}
+
+	private void assertInterests(List<NamedFacebookType> interests) {
+		checkIfListIsNotEmpty(interests);
+		for (NamedFacebookType interest : interests) {
+			assertNotNull(interest);
+			assertNotNull(interest.getId());
+			assertNotNull(interest.getName());
+		}
 	}
 
 	/**

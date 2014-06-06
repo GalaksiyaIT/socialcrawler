@@ -25,6 +25,7 @@ import com.galaksiya.social.linker.BankPersonLinker;
 import com.galaksiya.social.ontology.vocabulary.CommonOntologyVocabulary;
 import com.galaksiya.social.ontology.vocabulary.FacebookOntologyVocabulary;
 import com.galaksiya.social.ontology.vocabulary.FoursquareOntologyVocabulary;
+import com.galaksiya.social.utility.HashGenerator;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.ResultSet;
@@ -198,7 +199,7 @@ public class FacebookIndividualCreator extends IndividualCreator {
 		if (facebookUser.getUser().getLocation() != null) {
 			createLocationProperty(fbUserIndv, generateId(facebookUser
 					.getUser().getLocation().getId()), facebookUser.getUser()
-					.getHometown().getName());
+					.getLocation().getName());
 		}
 
 		createProperty(fbUserIndv, FacebookOntologyVocabulary.RELIGION_URI,
@@ -232,6 +233,7 @@ public class FacebookIndividualCreator extends IndividualCreator {
 		// Multiple Property Creation...
 		createEducationProperties(facebookUser, fbUserIndv);
 		createWorkProperties(facebookUser, fbUserIndv);
+		createInterestedInProperties(facebookUser, fbUserIndv);
 
 		// adding event properties
 		createEventProperties(facebookUser, fbUserIndv);
@@ -247,6 +249,39 @@ public class FacebookIndividualCreator extends IndividualCreator {
 		new BankPersonLinker().linkPersonToBankDataset(fbUserIndv);
 
 		return fbUserIndv;
+	}
+
+	private void createInterestedInProperties(FacebookUser facebookUser,
+			Resource fbUserIndv) {
+		List<NamedFacebookType> interestedInPrps = facebookUser.getInterests();
+		if (interestedInPrps != null) {
+			Iterator<NamedFacebookType> interestIter = interestedInPrps
+					.iterator();
+			while (interestIter.hasNext()) {
+				NamedFacebookType interest = (NamedFacebookType) interestIter
+						.next();
+				createInterestedInPrp(fbUserIndv, interest);
+			}
+		}
+	}
+
+	private void createInterestedInPrp(Resource fbUserIndv,
+			NamedFacebookType interest) {
+		if (interest != null) {
+			Resource interestIndv = createInterestIndividual(interest);
+			createProperty(fbUserIndv,
+					FacebookOntologyVocabulary.INTERESTED_IN_PRP_URI,
+					interestIndv);
+		}
+	}
+
+	private Resource createInterestIndividual(NamedFacebookType interest) {
+		Resource interestIndv = getModel().createResource(
+				getBaseURI() + "interest/" + interest.getId(),
+				getModel().createResource(
+						FacebookOntologyVocabulary.INTEREST_RSC_URI));
+		createProperty(interestIndv, FOAF.name.getURI(), interest.getName());
+		return interestIndv;
 	}
 
 	private void createConcentrationProperties(Education education,
@@ -269,15 +304,19 @@ public class FacebookIndividualCreator extends IndividualCreator {
 			Iterator<Education> iterator = eduList.iterator();
 			while (iterator.hasNext()) {
 				Education education = (Education) iterator.next();
-				createEducationProperty(fbOntIndv, education);
+				createEducationProperty(fbOntIndv, education, facebookUser
+						.getUser().getId());
 			}
 		}
 	}
 
-	private void createEducationProperty(Resource fbOntIndv, Education education) {
+	private void createEducationProperty(Resource fbOntIndv,
+			Education education, String facebookId) {
 		if (education != null) {
+
 			Resource eduIndv = getModel().createResource(
-					getBaseURI() + "education/" + UUID.randomUUID(),
+					getBaseURI() + "education/"
+							+ generateEducationId(education, facebookId),
 					getModel().createResource(
 							CommonOntologyVocabulary.EDUCATION_URI));
 			createConcentrationProperties(education, eduIndv);
@@ -289,6 +328,28 @@ public class FacebookIndividualCreator extends IndividualCreator {
 			createProperty(fbOntIndv, CommonOntologyVocabulary.CV_EDU_PRP_URI,
 					eduIndv);
 		}
+	}
+
+	/**
+	 * This method generates id using combination of facebook education school,
+	 * education year and education degree ids.
+	 * 
+	 * @param education
+	 * @param facebookId
+	 * @return combined id
+	 */
+	private int generateEducationId(Education education, String facebookId) {
+		return HashGenerator.hashCode(facebookId,
+				getIdValue(education.getSchool()),
+				getIdValue(education.getYear()),
+				getIdValue(education.getDegree()));
+	}
+
+	private String getIdValue(NamedFacebookType namedFbType) {
+		if (namedFbType != null) {
+			return namedFbType.getId();
+		}
+		return null;
 	}
 
 	private void createEduConcentrationProperty(Resource eduIndv,
@@ -536,6 +597,7 @@ public class FacebookIndividualCreator extends IndividualCreator {
 	 */
 	private void createLikeProperties(FacebookUser facebookUser,
 			Resource fbUserIndv) {
+
 		Logger logger = Logger.getLogger(FacebookIndividualCreator.class
 				.getSimpleName());
 		logger.log(Level.INFO, "likes are begginning to get");
@@ -686,11 +748,13 @@ public class FacebookIndividualCreator extends IndividualCreator {
 		}
 	}
 
-	private Resource createWorkIndividual(Resource fbOntIndv, Work work) {
+	private Resource createWorkIndividual(Resource fbOntIndv, Work work,
+			String facebookId) {
 		Resource workIndv = null;
 		if (work != null) {
 			workIndv = getModel().createResource(
-					getBaseURI() + "workhistory/" + UUID.randomUUID(),
+					getBaseURI() + "workhistory/"
+							+ generateWorkId(work, facebookId),
 					getModel().getResource(
 							CommonOntologyVocabulary.WORK_HISTORY_URI));
 			String description = work.getDescription();
@@ -717,6 +781,12 @@ public class FacebookIndividualCreator extends IndividualCreator {
 
 	}
 
+	private int generateWorkId(Work work, String facebookId) {
+		return HashGenerator.hashCode(facebookId,
+				getIdValue(work.getEmployer()), getIdValue(work.getPosition()),
+				work.getStartDate(), work.getEndDate());
+	}
+
 	private void createWorkProperties(FacebookUser facebookUser,
 			Resource fbOntIndv) {
 		List<Work> workList = facebookUser.getWorks();
@@ -725,7 +795,8 @@ public class FacebookIndividualCreator extends IndividualCreator {
 			while (iterator.hasNext()) {
 				Work work = (Work) iterator.next();
 				// creating work property
-				Resource workIndv = createWorkIndividual(fbOntIndv, work);
+				Resource workIndv = createWorkIndividual(fbOntIndv, work,
+						facebookUser.getUser().getId());
 				createProperty(fbOntIndv,
 						CommonOntologyVocabulary.CV_HAS_WORK_HISTORY_PRP_URI,
 						workIndv);

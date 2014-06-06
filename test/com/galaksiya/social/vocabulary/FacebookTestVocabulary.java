@@ -8,7 +8,7 @@ import com.hp.hpl.jena.rdf.model.ResourceFactory;
 public class FacebookTestVocabulary {
 	public static final String AMSTERDAM = "Amsterdam, Netherlands";
 	public static final String CALIFORNIA = "California City, California";
-	public static final String ACCESS_TOKEN_CONTAINS_ALL_INFORMATION = "CAAD5pz1EKfYBAHzerC8hjZBWWUTUuo8KqaMNqytinSM1lxN7zM1yFQpuKMjmV7PdZCtxWtLZCAK4S3sE8UwauH9gumv6u6uvDRv1Jil2ZBPu5TDPo3htWgITLKrBAVfUL0Fa5dSQjQ8XUqXJha0Iz0GWkA9EznjE6QbHZBV5sECrndZA3OxtLGhFMoZCoZAWZAcEZD";
+	public static final String ACCESS_TOKEN_CONTAINS_ALL_INFORMATION = "CAAD5pz1EKfYBACixahB16y6VJyDZCgLxbZADaVBZBboSaByjNCNfC1QiDi0OsALUDlpSQFZBraSRTs2MN9ZADMggWEKqHlrdPQT56ez14xeJrV4NQBeX5ZCYeHp0J5d6yrVxTBxpLy8gkdGFhxB3XDocMWbLhqHtuN0EZBYxBjs8Qmvv1v9IwamZBT4kGoSDaT8ZD";
 	/**
 	 * access token that lacks email and like properties
 	 */
@@ -74,6 +74,7 @@ public class FacebookTestVocabulary {
 	public static final String PAGE_URI = "https://www.facebook.com/profile.php?id=100008264590021";
 	public static final String LABEL = "Amelia Verboom";
 	public static final String DEPICTION_1 = "https://fbcdn-profile-a.akamaihd.net/hprofile-ak-prn1/t1.0-1/s100x100/10336617_1390608204557986_3333158814594344401_s.jpg";
+	public static final String DEPICTION_2 = "https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xpf1/t1.0-1/s100x100/10336617_1390608204557986_3333158814594344401_s.jpg";
 	public static final String PERSON_NAME = LABEL;
 	public static final String EXPECTED_REDIRECT_URL = "https://www.facebook.com/dialog/oauth?client_id=169311759819999&redirect_uri=https://23.23.193.63/project/request/facebookauth&scope=user_likes,user_events,user_groups,user_photos,user_videos,email,user_birthday,user_education_history,user_work_history";
 
@@ -265,4 +266,5 @@ public class FacebookTestVocabulary {
 	public static final String PRODUCER_LIKE_1 = "Peter Jackson";
 	public static final String ACTOR_DIRECTOR_LIKE_1 = "Quentin Tarantino";
 	public static final String UNCATEGORİZED_LIKE_1 = "Eclipse";
+	public static final String UNCATEGORİZED_LIKE_2 = "Java";
 }

@@ -1,8 +1,6 @@
 package com.galaksiya.social.fetcher;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -31,6 +29,7 @@ import com.hp.hpl.jena.rdf.model.impl.StatementImpl;
 import com.hp.hpl.jena.sparql.vocabulary.FOAF;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
+import com.restfb.types.NamedFacebookType;
 import com.restfb.types.User;
 
 public class FacebookIndividualCreationTest {
@@ -100,6 +99,8 @@ public class FacebookIndividualCreationTest {
 		ArrayList<Object> depictionList = new ArrayList<Object>();
 		depictionList.add(ResourceFactory
 				.createResource(FacebookTestVocabulary.DEPICTION_1));
+		depictionList.add(ResourceFactory
+				.createResource(FacebookTestVocabulary.DEPICTION_2));
 
 		// iterating on depiction statements and controlling whether expected
 		// depiction list contains property value
@@ -263,6 +264,42 @@ public class FacebookIndividualCreationTest {
 
 	}
 
+	@Test
+	public void interestsCreation() throws Exception {
+		// add expected like names into the control list
+		ArrayList<Object> interestNames = new ArrayList<Object>();
+		interestNames.add("Java");
+
+		// get user likes
+		StmtIterator interestedInStmtIter = facebookIndividual
+				.listProperties(ResourceFactory
+						.createProperty(FacebookOntologyVocabulary.INTERESTED_IN_PRP_URI));
+		assertNotNull(interestedInStmtIter);
+		assertTrue(interestedInStmtIter.hasNext());
+		// iterate on each like statement
+		while (interestedInStmtIter.hasNext()) {
+			// get next statement
+			Statement interestedInStmt = (Statement) interestedInStmtIter
+					.next();
+			// get interest resource
+			RDFNode interestedInNode = interestedInStmt.getObject();
+			assertNotNull(interestedInNode);
+			// check interest name is contained in the given control list.
+			Resource interestedInRsc = interestedInNode.asResource();
+			assertEquals(
+					ResourceFactory
+							.createResource(FacebookOntologyVocabulary.INTEREST_RSC_URI),
+					interestedInRsc.getProperty(RDF.type).getObject());
+			Statement nameStmt = interestedInRsc.getProperty(FOAF.name);
+			assertNotNull(nameStmt);
+			RDFNode nameNode = nameStmt.getObject();
+			assertNotNull(nameNode);
+			String nameValue = nameNode.asLiteral().getString();
+			TestUtil.assertContains("In list of likeNames", interestNames,
+					nameValue);
+		}
+	}
+
 	/**
 	 * This method asserts team properties that user is fan of it.
 	 * 
@@ -322,6 +359,7 @@ public class FacebookIndividualCreationTest {
 		likeNames.add(FacebookTestVocabulary.PRODUCER_LIKE_1);
 		likeNames.add(FacebookTestVocabulary.ACTOR_DIRECTOR_LIKE_1);
 		likeNames.add(FacebookTestVocabulary.UNCATEGORİZED_LIKE_1);
+		likeNames.add(FacebookTestVocabulary.UNCATEGORİZED_LIKE_2);
 
 		// get user likes
 		StmtIterator likeStmtIter = facebookIndividual

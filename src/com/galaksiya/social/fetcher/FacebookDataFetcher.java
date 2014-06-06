@@ -11,6 +11,7 @@ import com.galaksiya.social.entity.FacebookUser;
 import com.galaksiya.social.entity.FacebookVenue;
 import com.galaksiya.social.entity.FamilyBond;
 import com.galaksiya.social.entity.Group;
+import com.galaksiya.social.entity.Interest;
 import com.galaksiya.social.entity.Like;
 import com.galaksiya.social.entity.Movie;
 import com.galaksiya.social.entity.Music;
@@ -22,6 +23,7 @@ import com.restfb.json.JsonArray;
 import com.restfb.json.JsonException;
 import com.restfb.json.JsonObject;
 import com.restfb.types.Event;
+import com.restfb.types.NamedFacebookType;
 import com.restfb.types.User.Education;
 import com.restfb.types.User.Work;
 
@@ -32,6 +34,8 @@ import com.restfb.types.User.Work;
 public class FacebookDataFetcher {
 
 	public static final String EDUCATION_FQL_QUERY = "SELECT education FROM user WHERE uid=me()";
+
+	public static final String INTEREST_FQL_QUERY = "SELECT user_interests FROM user WHERE uid=me()";
 
 	public static final String FAMILY_GET_QUERY = "SELECT uid,profile_id, name ,relationship, birthday FROM family WHERE profile_id = ";
 
@@ -83,11 +87,25 @@ public class FacebookDataFetcher {
 			facebookUser.setGroups(retrieveGroups());
 			// facebookUser.setMovies(retrieveMovies());
 			// facebookUser.setMusics(retrieveMusics());
+			facebookUser.setInterests(retrieveInterests());
 			facebookUser.setEvents(retrieveEvents());
 			facebookUser.setWorks(retrieveWorks());
 			facebookUser.setEducations(retrieveEducations());
 			// facebookUser.setFamilyBonds(retrievefamilyBonds());
 		}
+	}
+
+	private List<NamedFacebookType> retrieveInterests() {
+
+		List<NamedFacebookType> interests = new ArrayList<NamedFacebookType>();
+		if (!SocialNetworkUtil.isRetrievable(permissonList,
+				FacebookPermissions.user_education_history.name())) {
+			return interests;
+		}
+		Connection<NamedFacebookType> interestsConn = facebookUser.getClient()
+				.fetchConnection("me/interests", NamedFacebookType.class);
+		interests = interestsConn.getData();
+		return interests;
 	}
 
 	/**

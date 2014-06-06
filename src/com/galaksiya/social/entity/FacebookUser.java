@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.restfb.FacebookClient;
 import com.restfb.json.JsonObject;
+import com.restfb.types.NamedFacebookType;
 import com.restfb.types.User;
 import com.restfb.types.User.Education;
 import com.restfb.types.User.Work;
@@ -32,6 +33,16 @@ public class FacebookUser {
 	 */
 	private ArrayList<FacebookEvent> events;
 	private ArrayList<FamilyBond> familyBonds;
+
+	private List<NamedFacebookType> interests;
+
+	public List<NamedFacebookType> getInterests() {
+		return interests;
+	}
+
+	public void setInterests(List<NamedFacebookType> interests) {
+		this.interests = interests;
+	}
 
 	/**
 	 * Friend list of the client
