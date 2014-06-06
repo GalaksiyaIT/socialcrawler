@@ -34,7 +34,7 @@ public class LinkerTestContants {
 	public static final String SAMPLE_SUBJECT_RSC_URI = "http://linkersubject.com/resource/burakyonyul";
 
 	public static final String JURASSIC_PARK_LOCAL_MOVIE_URI = CommonTestVocabulary.BASE_URI
-			+ "/JurassicPark";
+			+ "JurassicPark";
 
 	public static final Resource JURASSIC_PARK_LOCAL_MOVIE_RSC = ResourceFactory
 			.createResource(JURASSIC_PARK_LOCAL_MOVIE_URI);

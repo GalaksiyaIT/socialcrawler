@@ -11,7 +11,7 @@ import com.galaksiya.social.ontology.AllOntologyTests;
 
 @RunWith(Suite.class)
 @SuiteClasses({ AllFetcherTests.class, AllCrawlerTests.class,
-		AllOntologyTests.class, AllLinkerTests.class })
+		AllOntologyTests.class, AllLinkerTests.class, HashGeneratorTest.class })
 public class AllTests {
 
 }

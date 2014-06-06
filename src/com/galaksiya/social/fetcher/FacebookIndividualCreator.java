@@ -1,15 +1,13 @@
 package com.galaksiya.social.fetcher;
 
 import java.io.FileOutputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.UUID;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -19,8 +17,6 @@ import com.galaksiya.social.entity.FacebookUser;
 import com.galaksiya.social.entity.FacebookVenue;
 import com.galaksiya.social.entity.FamilyBond;
 import com.galaksiya.social.entity.Like;
-import com.galaksiya.social.entity.Movie;
-import com.galaksiya.social.entity.Music;
 import com.galaksiya.social.linker.BankPersonLinker;
 import com.galaksiya.social.ontology.vocabulary.CommonOntologyVocabulary;
 import com.galaksiya.social.ontology.vocabulary.FacebookOntologyVocabulary;
@@ -338,11 +334,21 @@ public class FacebookIndividualCreator extends IndividualCreator {
 	 * @param facebookId
 	 * @return combined id
 	 */
-	private int generateEducationId(Education education, String facebookId) {
-		return HashGenerator.hashCode(facebookId,
-				getIdValue(education.getSchool()),
-				getIdValue(education.getYear()),
-				getIdValue(education.getDegree()));
+	private String generateEducationId(Education education, String facebookId) {
+		StringBuilder builder = new StringBuilder();
+
+		appendTextIfNotNull(facebookId, builder);
+		appendTextIfNotNull(getIdValue(education.getSchool()), builder);
+		appendTextIfNotNull(getIdValue(education.getYear()), builder);
+		appendTextIfNotNull(getIdValue(education.getDegree()), builder);
+
+		return HashGenerator.getMD5(builder.toString());
+	}
+
+	private void appendTextIfNotNull(String text, StringBuilder builder) {
+		if (text != null) {
+			builder.append(text);
+		}
 	}
 
 	private String getIdValue(NamedFacebookType namedFbType) {
@@ -781,10 +787,22 @@ public class FacebookIndividualCreator extends IndividualCreator {
 
 	}
 
-	private int generateWorkId(Work work, String facebookId) {
-		return HashGenerator.hashCode(facebookId,
-				getIdValue(work.getEmployer()), getIdValue(work.getPosition()),
-				work.getStartDate(), work.getEndDate());
+	private String generateWorkId(Work work, String facebookId) {
+		StringBuilder builder = new StringBuilder();
+
+		appendTextIfNotNull(getIdValue(work.getEmployer()), builder);
+		appendTextIfNotNull(getIdValue(work.getPosition()), builder);
+		appendDate(builder, work.getStartDate());
+		appendDate(builder, work.getEndDate());
+		
+		return HashGenerator.getMD5(builder.toString());
+	}
+
+	private void appendDate(StringBuilder builder, Date date) {
+		if (date != null) {
+			builder.append(new SimpleDateFormat(
+					DateUtils.FACEBOOK_MONTH_YEAR_DATE_FORMAT).format(date));
+		}
 	}
 
 	private void createWorkProperties(FacebookUser facebookUser,
