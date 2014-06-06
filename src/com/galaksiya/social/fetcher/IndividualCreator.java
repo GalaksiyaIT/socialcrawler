@@ -242,10 +242,11 @@ public abstract class IndividualCreator {
 	 */
 	private Resource createAccountIndv(String userId, Resource socialHomepageRsc) {
 		// create account individual
-		String userID = "account" + UUID.randomUUID();
+		// String userID = "account" + UUID.randomUUID();
+		String userRelativeURI = "account/" + userId;
 		Resource accountIndv = getModel()
 				.createResource(
-						createIndividualURI(userID),
+						createIndividualURI(userRelativeURI),
 						ResourceFactory
 								.createResource(CommonOntologyVocabulary.ACCOUNT_RSC_URI));
 		createProperty(accountIndv, FOAF.accountServiceHomepage.getURI(),
