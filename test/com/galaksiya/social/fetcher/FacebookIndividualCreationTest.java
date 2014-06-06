@@ -54,6 +54,91 @@ public class FacebookIndividualCreationTest {
 		createFacebookIndividual();
 	}
 
+	@Test
+	public void checkEducationsOfSamePersonsAreSame() throws Exception {
+
+		// get education statements of first created user
+		StmtIterator firstEduStmtIter = facebookIndividual
+				.listProperties(CommonOntologyVocabulary.EDUCATION_PRP);
+		// get statement list
+		List<Statement> firstEduStmtList = turnIntoList(firstEduStmtIter);
+
+		// create new the same facebook individual again and so her eduaction
+		// properties
+		Resource newFbIndv = createNewFacebookIndividual();
+
+		// get education statements of first created user
+		StmtIterator secondEduStmtIter = newFbIndv
+				.listProperties(CommonOntologyVocabulary.EDUCATION_PRP);
+		// get statement list
+		List<Statement> secondEduStmtList = turnIntoList(secondEduStmtIter);
+
+		// check list sizes
+		assertEquals(firstEduStmtList.size(), secondEduStmtList.size());
+
+		// assert education resources of statements are same in the two list
+		for (int i = 0; i < firstEduStmtList.size(); i++) {
+			assertEquals(firstEduStmtList.get(i).getObject(), secondEduStmtList
+					.get(i).getObject());
+		}
+
+	}
+	
+	@Test
+	public void checkWorksOfSamePersonsAreSame() throws Exception {
+
+		// get work statements of first created user
+		StmtIterator firstWorkStmtIter = facebookIndividual
+				.listProperties(CommonOntologyVocabulary.WORK_HISTORY_PRP);
+		// get statement list
+		List<Statement> firstWorkStmtList = turnIntoList(firstWorkStmtIter);
+
+		// create new the same facebook individual again and so her work
+		// properties
+		Resource newFbIndv = createNewFacebookIndividual();
+
+		// get work statements of first created user
+		StmtIterator secondWorkStmtIter = newFbIndv
+				.listProperties(CommonOntologyVocabulary.WORK_HISTORY_PRP);
+		// get statement list
+		List<Statement> secondWorkStmtList = turnIntoList(secondWorkStmtIter);
+
+		// check list sizes
+		assertEquals(firstWorkStmtList.size(), secondWorkStmtList.size());
+
+		// assert work resources of statements are same in the two list
+		for (int i = 0; i < firstWorkStmtList.size(); i++) {
+			assertEquals(firstWorkStmtList.get(i).getObject(), secondWorkStmtList
+					.get(i).getObject());
+		}
+
+	}
+
+	private Resource createNewFacebookIndividual() throws SocialAPIException {
+		FacebookIndividualCreator creator = new FacebookIndividualCreator(
+				CommonTestVocabulary.BASE_URI);
+		// creating FacebookUser instance
+		FacebookUser facebookUser = TestUtil
+				.createFacebookUser(FacebookTestVocabulary.ACCESS_TOKEN_CONTAINS_ALL_INFORMATION);
+		facebookUser.setId(FacebookTestVocabulary.AMELIA_FACEBOOK_ID);
+		Resource facebookIndividual = creator
+				.createPersonIndividual(facebookUser);
+		creator.createFriendProperties(facebookUser, facebookIndividual);
+		return facebookIndividual;
+	}
+
+	private List<Statement> turnIntoList(StmtIterator stmtIter) {
+		List<Statement> stmtList = new ArrayList<Statement>();
+
+		if (stmtIter != null) {
+			while (stmtIter.hasNext()) {
+				Statement statement = (Statement) stmtIter.next();
+				stmtList.add(statement);
+			}
+		}
+		return stmtList;
+	}
+
 	/**
 	 * this method checks whether user individual has been created correctly.
 	 * 
